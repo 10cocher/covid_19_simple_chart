@@ -6,11 +6,11 @@ import pandas as pd
 import numpy as np
 
 def get_latest_data():
-    url = "https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-{}.xlsx"
+    base_url = "https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-{}.xlsx"
     today = datetime.datetime.today()
-    for day in range(1):
+    for day in range(5):
         date = today + datetime.timedelta(days=-day)
-        url = url.format(datetime.datetime.strftime(date, '%Y-%m-%d'))
+        url = base_url.format(datetime.datetime.strftime(date, '%Y-%m-%d'))
         response = requests.get(url, allow_redirects=True)
         if response.status_code == 200:
             return pd.read_excel(url)
