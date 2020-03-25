@@ -71,7 +71,7 @@ def process_data_for_plot(df, min_deaths_number=80, n_death_date_origin=10):
 
     return df
     
-def get_altair_chart(df):
+def get_altair_chart(df,x_max=30):
     line_deaths_cumul = alt.Chart(df).mark_line(point=True, clip=True).encode(
         x=alt.X(
             "days_since_10_death:Q",
@@ -79,7 +79,7 @@ def get_altair_chart(df):
                 title="days since death number 10",  # Title of the x-axis.
                 grid=False,  # Show the x-axis grid.
             ),
-            scale = alt.Scale(domain=(0,30)),
+            scale = alt.Scale(domain=(0,x_max)),
         ),
         y=alt.Y(
             "cumul_deaths:Q",
@@ -114,7 +114,7 @@ def get_altair_chart(df):
                 grid=False,  # Show the x-axis grid.
                 #labelFontSize=18,
             ),
-            scale = alt.Scale(domain=(0,30)),          
+            scale = alt.Scale(domain=(0,x_max)),          
         ),
         y=alt.Y(
             "cumul_deaths:Q",
@@ -140,6 +140,41 @@ def get_altair_chart(df):
         ]
     )
 
+    line_deaths_lin = alt.Chart(df).mark_line(point=True, clip=True).encode(
+        x=alt.X(
+            "days_since_10_death:Q",
+            axis=alt.Axis(
+                title="days since death number 10",  # Title of the x-axis.
+                grid=False,  # Show the x-axis grid.
+                #labelFontSize=18,
+            ),
+            scale = alt.Scale(domain=(0,x_max)),          
+        ),
+        y=alt.Y(
+            "deaths:Q",
+            axis = alt.Axis(
+                title  = "death per day",
+                grid   = False,
+                offset = 0,
+            ),
+        ),
+        color = alt.Color(
+            "country:N",
+            legend=alt.Legend(orient='right'),
+        ),
+        tooltip = [
+            alt.Tooltip("country"),
+            alt.Tooltip("date"),
+            alt.Tooltip("days_since_10_death"),
+            alt.Tooltip("date_10_deaths"),
+            alt.Tooltip("deaths"),
+            alt.Tooltip("cumul_deaths"),
+            alt.Tooltip("cases"),
+            alt.Tooltip("cumul_cases"),
+        ]
+    )
+    
+
     # upper chart (logarthicmic y scale)
     chart_upper = alt.layer(
         line_deaths_cumul
@@ -156,11 +191,18 @@ def get_altair_chart(df):
         width=700,
     )
 
-
+    chart_upper_2 = alt.layer(
+        line_deaths_lin
+    ).properties(
+        height=400,
+        width=700,
+    )
+    
     # concat the two plots vertically
     chart = alt.vconcat(
         chart_upper,
-        chart_lower
+        chart_lower,
+        chart_upper_2
     ).resolve_scale(
         color='independent'
     ).configure_axis(
