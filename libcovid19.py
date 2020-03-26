@@ -92,6 +92,7 @@ def get_altair_chart(df,x_max=30):
         ),
         color = alt.Color(
             "country:N",
+            scale=alt.Scale(scheme='category20'),
             legend=alt.Legend(orient='right'),
         ),
         tooltip = [
@@ -126,6 +127,7 @@ def get_altair_chart(df,x_max=30):
         ),
         color = alt.Color(
             "country:N",
+            scale=alt.Scale(scheme='category20'),
             legend=alt.Legend(orient='right'),
         ),
         tooltip = [
@@ -160,6 +162,7 @@ def get_altair_chart(df,x_max=30):
         ),
         color = alt.Color(
             "country:N",
+            scale=alt.Scale(scheme='category20'),
             legend=alt.Legend(orient='right'),
         ),
         tooltip = [
