@@ -29,21 +29,19 @@ def process_data_for_plot(
         - n_deaths_date_origin
     """
     # defines a date column
-    df['date'] = pd.to_datetime(df['DateRep'], format='%Y-%m-%d')
+    df['date'] = pd.to_datetime(df['dateRep'], format='%Y-%m-%d')
     
     # remove useless columns
-    df.drop(columns=['Day','Month','Year','DateRep'], inplace=True)
+    df.drop(columns=['day','month','year','dateRep'], inplace=True)
     
     # convert deaths and cases
-    for col in ['Cases', 'Deaths']:
+    for col in ['cases', 'deaths']:
         df[col] = df[col].astype(np.int)
         
     # rename columns
     df.rename(columns={
-        'Cases':'cases',
-        'Deaths':'deaths',
-        'Countries and territories':'country',
-        'Pop_Data.2018': 'population',
+        'countriesAndTerritories':'country',
+        'popData2018': 'population',
     }, inplace=True)
     df.astype({'population':np.float32})
     
