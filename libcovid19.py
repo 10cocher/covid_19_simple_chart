@@ -18,7 +18,11 @@ def get_latest_data():
             print(f"Data not available for date {date}")
 
 
-def process_data_for_plot(df, min_deaths_number=80, n_death_date_origin=10):
+def process_data_for_plot(
+        df,
+        min_deaths_number = 80,
+        n_death_date_origin = 10,
+):
     """
     Args:
         - min_deaths_number(int, default=80): only countries which have reached this threshold number of deaths are kept;
@@ -28,7 +32,7 @@ def process_data_for_plot(df, min_deaths_number=80, n_death_date_origin=10):
     df['date'] = pd.to_datetime(df['DateRep'], format='%Y-%m-%d')
     
     # remove useless columns
-    df.drop(columns=['Day','Month','Year','GeoId','DateRep'], inplace=True)
+    df.drop(columns=['Day','Month','Year','DateRep'], inplace=True)
     
     # convert deaths and cases
     for col in ['Cases', 'Deaths']:
@@ -39,7 +43,9 @@ def process_data_for_plot(df, min_deaths_number=80, n_death_date_origin=10):
         'Cases':'cases',
         'Deaths':'deaths',
         'Countries and territories':'country',
+        'Pop_Data.2018': 'population',
     }, inplace=True)
+    df.astype({'population':np.float32})
     
     # sort the dataframe
     df.sort_values(by=['country','date'], ascending=True, inplace=True)
@@ -60,18 +66,29 @@ def process_data_for_plot(df, min_deaths_number=80, n_death_date_origin=10):
     ).rename(
         columns={'date':'date_10_deaths'}
     )
-
+    
     # add this information to the main dataframe
     df = df.merge(right=df_date_10_deaths, left_on='country', right_on='country')
     df['days_since_10_death'] = ( (df['date'] - df['date_10_deaths']).dt.days ).astype(np.int)
     df = df.loc[ (df['days_since_10_death'] > 0) , : ]
-
+    
     # sort the dataframe
     df.sort_values(by=['country','days_since_10_death'], inplace=True)
 
+    # add normalized cases, deaths.... per population count
+    for col in ['cases','deaths','cumul_cases','cumul_deaths']:
+        colnew = col + '_per_habitant'
+        df[colnew] = df[col] / df['population'] * np.float32(10**6)
+
     return df
     
-def get_altair_chart(df,x_max=30):
+def get_altair_chart(df, x_max=30, normalize_per_population = False):
+    if normalize_per_population:
+        col_chart_1 = "cumul_deaths_per_habitant:Q"
+        col_chart_2 = "deaths_per_habitant:Q"
+    else:
+        col_chart_1 = "cumul_deaths:Q"
+        col_chart_2 = "deaths:Q"
     line_deaths_cumul = alt.Chart(df).mark_line(point=True, clip=True).encode(
         x=alt.X(
             "days_since_10_death:Q",
@@ -82,7 +99,7 @@ def get_altair_chart(df,x_max=30):
             scale = alt.Scale(domain=(0,x_max)),
         ),
         y=alt.Y(
-            "cumul_deaths:Q",
+            col_chart_1,
             scale = alt.Scale(type='log'),
             axis = alt.Axis(
                 title  = "death cumulative count",
@@ -118,7 +135,7 @@ def get_altair_chart(df,x_max=30):
             scale = alt.Scale(domain=(0,x_max)),          
         ),
         y=alt.Y(
-            "cumul_deaths:Q",
+            col_chart_1,
             axis = alt.Axis(
                 title  = "death cumulative count",
                 grid   = False,
@@ -153,7 +170,7 @@ def get_altair_chart(df,x_max=30):
             scale = alt.Scale(domain=(0,x_max)),          
         ),
         y=alt.Y(
-            "deaths:Q",
+            col_chart_2,
             axis = alt.Axis(
                 title  = "death per day",
                 grid   = False,
