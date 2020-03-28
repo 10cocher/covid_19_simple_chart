@@ -1,4 +1,5 @@
 import os
+import altair as alt
 import libcovid19 as covid
 
 # folder where to save output plots
@@ -21,4 +22,6 @@ chart = covid.get_altair_chart(df)
 
 # save the chart as a html file
 path_output_html_file = os.path.join(out_dir, 'charts_covid_19.html')
-chart.save(path_output_html_file)
+#
+with alt.data_transformers.enable('default'):
+    chart.save(path_output_html_file)
