@@ -1,2 +1,26 @@
 venv/*
 
+#
+world_pop_data/
+plots/
+input_data/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.mypy_cache/
+
+# temporary files
+*.py~
+*.yaml~
+.gitignore~
+.flake8~
+.isort.cfg~
+.pre-commit-config.yaml~
+mypy.ini~
+requirements.txt~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# data for altair plots
+mydata/
